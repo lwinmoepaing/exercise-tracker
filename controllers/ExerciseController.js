@@ -21,11 +21,7 @@ async function EXPORT_LOG(req, res) {
 
 		const f = isDate(from) && from ? from : null;
 		const t = isDate(to) && to ? to : null;
-
-		let searchObj =
-			f && t
-				? { $gte: new Date(f), $lt: new Date(t) }
-				: f ? { $gte: new Date(f) } : t ? { $lt: new Date(t) } : { $gte: new Date(1900, 1, 1, 0, 0, 0) };
+		let searchObj = getSarchObj(f, t);
 
 		let exerciseLogs = await Exercise.find({
 			user_id: userId,
@@ -45,8 +41,10 @@ async function EXPORT_LOG(req, res) {
 			_id,
 			username
 		};
-		if (isDate(from)) returnObj.from = from;
-		if (isDate(to)) returnObj.to = to;
+
+		if (f) returnObj.from = from;
+		if (t) returnObj.to = to;
+
 		returnObj = {
 			...returnObj,
 			count: exerciseLogs.length,
@@ -96,6 +94,12 @@ async function CREATE_EXERCISE(req, res) {
 | All Validation For ExerciseInputForm
 |--------------------------------------------------
 */
+
+function getSarchObj(f, t) {
+	return f && t
+		? { $gte: new Date(f), $lt: new Date(t) }
+		: f ? { $gte: new Date(f) } : t ? { $lt: new Date(t) } : { $gte: new Date(1900, 1, 1, 0, 0, 0) };
+}
 
 function isDate(date) {
 	let d = new Date(date);
